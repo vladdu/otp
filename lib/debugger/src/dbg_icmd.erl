@@ -25,6 +25,7 @@
 -export([step/1, next/1, continue/1, finish/1, skip/1, timeout/1,
 	 stop/1]).
 -export([eval/2]).
+-export([set_variable_value/4]).
 -export([set/3, get/3]).
 -export([handle_msg/4]).
 
@@ -183,6 +184,16 @@ skip(Meta) ->     Meta ! {user, {cmd, skip}}.
 timeout(Meta) ->  Meta ! {user, timeout}.
 
 stop(Meta) ->     Meta ! {user, {cmd, stop}}.
+
+set_variable_value(Meta, Variable, Value, SP) ->
+    eval(Meta, {no_module, Variable++"="++Value, SP}),
+    receive
+        {Meta, EvalRsp} ->
+            EvalRsp
+    after 5000 ->
+            {error, timeout}
+    end.
+
 
 eval(Meta, {Mod, Cmd}) ->
     eval(Meta, {Mod, Cmd, nostack});
