@@ -1,0 +1,9 @@
+digraph {
+graph[ overlap=false; splines=true; ];
+crypto -> {erts; stdlib; kernel; }
+erts
+kernel -> {erts; stdlib; sasl; }
+sasl -> {tools; stdlib; kernel; erts; }
+stdlib -> {sasl; kernel; erts; crypto; }
+tools
+}
