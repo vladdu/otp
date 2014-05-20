@@ -17,11 +17,11 @@
 %% %CopyrightEnd%
 
 -module(erl_scan_SUITE).
--export([all/0, suite/0,groups/0,init_per_suite/1, end_per_suite/1, 
-	 init_per_group/2,end_per_group/2]).
+-export([all/0, suite/0,groups/0,init_per_suite/1, end_per_suite/1,
+     init_per_group/2,end_per_group/2]).
 
 -export([ error_1/1, error_2/1, iso88591/1, otp_7810/1, otp_10302/1,
-          otp_10990/1, otp_10992/1, otp_11807/1]).
+          otp_10990/1, otp_10992/1, otp_11807/1, whitespace_char_literals/1]).
 
 -import(lists, [nth/2,flatten/1]).
 -import(io_lib, [print/1]).
@@ -1163,6 +1163,33 @@ otp_11807(Config) when is_list(Config) ->
     {'EXIT', {{badarg,bad},_}} = % minor backward incompatibility
          (catch erl_parse:abstract("string", [{encoding,bad}])),
    ok.
+
+whitespace_char_literals(doc) ->
+    "Tokens for whitespace char literals should return text if required.";
+whitespace_char_literals(suite) ->
+    [];
+whitespace_char_literals(Config) when is_list(Config) ->
+    Whites = lists:seq(0, $\s) ++ lists:seq(16#007F, 16#009F) ++
+                 lists:seq(16#2000, 16#200A) ++
+                 [16#00A0, 16#1680, 16#202F, 16#205F, 16#3000],
+    Fun = fun(C)->
+                  {ok, [{char, 1, C}, {',', 1}
+                       ], 1} = erl_scan:string([$$, C, $,]),
+                  {ok, [{char, [{line, 1}, {text, [$$, C]}], C},
+                        {',', [{line, 1}, {text, ","}]}
+                       ], 1} = erl_scan:string([$$, C, $,], 1, [text]),
+                  {ok, [{char, [{line, 1}, {text, [$$, C]}], C},
+                        {',', [{line, 1}]}
+                       ], 1} = erl_scan:string([$$, C, $,], 1, [whitechar_text])
+          end,
+    lists:foreach(Fun, Whites),
+    {ok, [{char, [{line, 1}, {text, [$$, $x]}], $x},
+          {',', [{line, 1}, {text, ","}]}
+         ], 1} = erl_scan:string([$$, $x, $,], 1, [text]),
+    {ok, [{char, [{line, 1}], $x},
+          {',', [{line, 1}]}
+         ], 1} = erl_scan:string([$$, $x, $,], 1, [whitechar_text]),
+    ok.
 
 test_string(String, Expected) ->
     {ok, Expected, _End} = erl_scan:string(String),

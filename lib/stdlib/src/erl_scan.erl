@@ -83,7 +83,7 @@
 -type location() :: line() | {line(),column()}.
 -type resword_fun() :: fun((atom()) -> boolean()).
 -type option() :: 'return' | 'return_white_spaces' | 'return_comments'
-                | 'text' | {'reserved_word_fun', resword_fun()}.
+                | 'text' | {'reserved_word_fun', resword_fun()} | 'whitechar_text'.
 -type options() :: option() | [option()].
 -type symbol() :: atom() | float() | integer() | string().
 -type info_line() :: integer() | term().
@@ -104,7 +104,8 @@
         {resword_fun = fun reserved_word/1 :: resword_fun(),
          ws          = false               :: boolean(),
          comment     = false               :: boolean(),
-         text        = false               :: boolean()}).
+         text        = false               :: boolean(),
+         whitechar_text = false            :: boolean()}).
 
 %%----------------------------------------------------------------------------
 
@@ -341,6 +342,11 @@ string_thing(_) -> "string".
          (C >= 0 andalso C < 16#D800 orelse
           C > 16#DFFF andalso C < 16#FFFE orelse
           C > 16#FFFF andalso C =< 16#10FFFF)).
+-define(WHITESPACE_OR_CONTROL(C),
+        is_integer(C) andalso (C>=0 andalso C=<16#0020) orelse
+            (C>=16#007F andalso C=<16#009F) orelse C==16#00A0 orelse
+            C==16#1680 orelse (C>=16#2000 andalso C=<16#200A) orelse
+            C==16#202F orelse C==16#205F orelse C==16#3000).
 
 -define(UNI255(C), C >= 0, C =< 16#ff).
 
@@ -861,6 +867,15 @@ scan_char([$\\|Cs]=Cs0, St, Line, Col, Toks) ->
 scan_char([$\n=C|Cs], St, Line, Col, Toks) ->
     Attrs = attributes(Line, Col, St, ?STR(St, [$$,C])),
     scan1(Cs, St, Line+1, new_column(Col, 1), [{char,Attrs,C}|Toks]);
+scan_char([C|Cs], St, Line, Col, Toks) when ?WHITESPACE_OR_CONTROL(C) ->
+    Attrs0 = attributes(Line, Col, St, ?STR(St, [$$,C])),
+    Attrs = case {St#erl_scan.whitechar_text, St#erl_scan.text} of
+                {true, false} ->
+                    Attrs0 ++ [{text, [$$,C]}];
+                _ ->
+                    Attrs0
+            end,
+    scan1(Cs, St, Line, incr_column(Col, 2), [{char,Attrs,C}|Toks]);
 scan_char([C|Cs], St, Line, Col, Toks) when ?UNICODE(C) ->
     Attrs = attributes(Line, Col, St, ?STR(St, [$$,C])),
     scan1(Cs, St, Line, incr_column(Col, 2), [{char,Attrs,C}|Toks]);
