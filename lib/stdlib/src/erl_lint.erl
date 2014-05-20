@@ -656,7 +656,22 @@ pre_scan([{attribute,L,compile,C} | Fs], St) ->
 pre_scan([_ | Fs], St) ->
     pre_scan(Fs, St);
 pre_scan([], St) ->
-    St.
+    Lines = check_whitespace_literals(St),
+    Fun = fun({Loc, W}, Acc) ->
+                  add_warning({Loc, erl_lint, W}, Acc)
+          end,
+    lists:foldl(Fun, St, Lines).
+
+check_whitespace_literals(St) ->
+    File = St#lint.file,
+    {ok, Text} = file:read_file(File),
+    {ok, Tokens, _} = erl_scan:string(binary_to_list(Text), 1, [whitechar_text]),
+    Fun = fun({char, _, [{line, L}, {text, T}]}) ->
+                  {true, {L, {whitespace_literal, T}}};
+             (_) ->
+                  false
+          end,
+    lists:filtermap(Fun, Tokens).
 
 includes_qlc_hrl(Forms, St) ->
     %% QLC calls erl_lint several times, sometimes with the compile
