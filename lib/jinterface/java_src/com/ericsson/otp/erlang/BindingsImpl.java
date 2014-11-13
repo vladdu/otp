@@ -32,10 +32,12 @@ public final class BindingsImpl implements Bindings {
         bindings.putAll(binds.getAll());
     }
 
+    @Override
     public OtpErlangObject get(final String name) {
         return bindings.get(name);
     }
 
+    @Override
     public int getInt(final String name) throws OtpErlangException {
         final OtpErlangObject r = get(name);
         if (r instanceof OtpErlangLong) {
@@ -44,6 +46,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not an integer");
     }
 
+    @Override
     public long getLong(final String name) throws OtpErlangException {
         final OtpErlangObject r = get(name);
         if (r instanceof OtpErlangLong) {
@@ -52,6 +55,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not an integer");
     }
 
+    @Override
     public String getAtom(final String name) throws OtpErlangException {
         final OtpErlangObject r = get(name);
         if (r instanceof OtpErlangAtom) {
@@ -60,6 +64,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not an atom");
     }
 
+    @Override
     public String getQuotedAtom(final String name) throws OtpErlangException {
         final OtpErlangObject r = get(name);
         if (r instanceof OtpErlangAtom) {
@@ -68,6 +73,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not an atom");
     }
 
+    @Override
     public String getString(final String name) throws OtpErlangException {
         final OtpErlangObject r = get(name);
         if (r instanceof OtpErlangString) {
@@ -76,6 +82,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not a string");
     }
 
+    @Override
     public Collection<OtpErlangObject> getList(final String name)
             throws OtpErlangException {
         final OtpErlangObject r = get(name);
@@ -85,6 +92,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not a list");
     }
 
+    @Override
     public OtpErlangObject[] getTuple(final String name)
             throws OtpErlangException {
         final OtpErlangObject r = get(name);
@@ -94,6 +102,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not a tuple");
     }
 
+    @Override
     public OtpErlangPid getPid(final String name) throws OtpErlangException {
         final OtpErlangObject r = get(name);
         if (r instanceof OtpErlangPid) {
@@ -102,6 +111,7 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not a pid");
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getAs(final String name, final Class<T> cls)
             throws SignatureException {
@@ -109,10 +119,12 @@ public final class BindingsImpl implements Bindings {
         return (T) TypeConverter.erlang2java(v, cls);
     }
 
+    @Override
     public void put(final String name, final OtpErlangObject value) {
         bindings.put(name, value);
     }
 
+    @Override
     public Map<String, OtpErlangObject> getAll() {
         return Collections.unmodifiableMap(bindings);
     }
@@ -122,6 +134,7 @@ public final class BindingsImpl implements Bindings {
         return bindings.toString();
     }
 
+    @Override
     public OtpErlangBinary getBinary(final String name)
             throws OtpErlangException {
         final OtpErlangObject r = get(name);
@@ -131,11 +144,13 @@ public final class BindingsImpl implements Bindings {
         throw new OtpErlangException("value is not a binary");
     }
 
+    @Override
     public String getAsString(final String name) {
         final OtpErlangObject r = get(name);
         return OtpErlang.asString(r);
     }
 
+    @Override
     public double getDouble(final String name) throws OtpErlangException {
         final OtpErlangObject r = get(name);
         if (r instanceof OtpErlangDouble) {
