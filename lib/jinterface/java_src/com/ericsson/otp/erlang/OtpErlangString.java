@@ -192,4 +192,9 @@ public class OtpErlangString extends OtpErlangObject {
         }
         return new String(bytes);
     }
+
+    @Override
+    public String asString() {
+        return str;
+    }
 }

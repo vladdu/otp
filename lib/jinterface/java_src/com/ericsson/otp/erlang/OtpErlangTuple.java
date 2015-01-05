@@ -18,6 +18,9 @@
  */
 package com.ericsson.otp.erlang;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Provides a Java representation of Erlang tuples. Tuples are created from one
  * or more arbitrary Erlang terms.
@@ -252,4 +255,46 @@ public class OtpErlangTuple extends OtpErlangObject {
         newTuple.elems = elems.clone();
         return newTuple;
     }
+
+    @Override
+    public boolean matchTerm(final OtpErlangObject o, final OtpBindings bindings) {
+        if (!(o instanceof OtpErlangTuple)) {
+            return false;
+        }
+        final OtpErlangTuple t = (OtpErlangTuple) o;
+        if (arity() != t.arity()) {
+            return false;
+        }
+        for (int i = 0; i < arity(); i++) {
+            final OtpErlangObject p = elementAt(i);
+            final OtpErlangObject e = t.elementAt(i);
+            if (!p.matchTerm(e, bindings)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public OtpErlangObject bind(final OtpBindings bindings)
+            throws OtpMatchException {
+        if (bindings == null) {
+            throw new OtpMatchException("null bindings");
+        }
+        final List<OtpErlangObject> o = new ArrayList<OtpErlangObject>();
+        for (final OtpErlangObject e : elems) {
+            o.add(e.bind(bindings));
+        }
+        return OtpErlang.mkTuple(o);
+    }
+
+    @Override
+    public OtpErlangObject bindPartial(final OtpBindings bindings) {
+        final List<OtpErlangObject> o = new ArrayList<OtpErlangObject>();
+        for (final OtpErlangObject e : elems) {
+            o.add(e.bindPartial(bindings));
+        }
+        return OtpErlang.mkTuple(o);
+    }
+
 }

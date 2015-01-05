@@ -18,7 +18,9 @@
  */
 package com.ericsson.otp.erlang;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -324,7 +326,7 @@ public class OtpErlangList extends OtpErlangObject implements
         try {
             return new OtpErlangList(elements(), getLastTail());
         } catch (final OtpErlangException e) {
-            throw new AssertionError(this);
+            return null;
         }
     }
 
@@ -497,4 +499,76 @@ public class OtpErlangList extends OtpErlangObject implements
                     "OtpErlangList cannot be modified!");
         }
     }
+
+    @Override
+    public String asString() {
+        try {
+            return stringValue();
+        } catch (final OtpErlangException e) {
+            return toString();
+        }
+    }
+
+    @Override
+    public boolean matchTerm(final OtpErlangObject o, final OtpBindings bindings) {
+        if (!(o instanceof OtpErlangList)) {
+            return false;
+        }
+
+        final OtpErlangList list = (OtpErlangList) o;
+        final int pa = arity();
+        final int pt = list.arity();
+        final boolean canMatch1 = pa == pt
+                && (lastTail == null && list.lastTail == null || lastTail != null
+                        && (list.lastTail != null || lastTail instanceof OtpPatternVariable));
+        final boolean canMatch2 = pa < pt
+                && lastTail instanceof OtpPatternVariable;
+        final boolean canMatch = canMatch1 || canMatch2;
+        if (!canMatch) {
+            return false;
+        }
+        for (int i = 0; i < pa; i++) {
+            final OtpErlangObject pe = elementAt(i);
+            final OtpErlangObject te = list.elementAt(i);
+            if (!pe.matchTerm(te, bindings)) {
+                return false;
+            }
+        }
+        boolean result = true;
+        if (pa < pt) {
+            result = lastTail.matchTerm(list.getNthTail(pa), bindings);
+        } else {
+            if (lastTail != null) {
+                if (list.lastTail == null) {
+                    result = lastTail.matchTerm(new OtpErlangList(), bindings);
+                } else {
+                    result = lastTail.matchTerm(list.lastTail, bindings);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public OtpErlangObject bind(final OtpBindings bindings)
+            throws OtpMatchException {
+        if (bindings == null) {
+            throw new OtpMatchException("null bindings");
+        }
+        final List<OtpErlangObject> o = new ArrayList<OtpErlangObject>();
+        for (final OtpErlangObject e : elems) {
+            o.add(e.bind(bindings));
+        }
+        return OtpErlang.mkList(o);
+    }
+
+    @Override
+    public OtpErlangObject bindPartial(final OtpBindings bindings) {
+        final List<OtpErlangObject> o = new ArrayList<OtpErlangObject>();
+        for (final OtpErlangObject e : elems) {
+            o.add(e.bindPartial(bindings));
+        }
+        return OtpErlang.mkList(o);
+    }
+
 }

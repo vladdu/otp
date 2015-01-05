@@ -18,6 +18,9 @@
  */
 package com.ericsson.otp.erlang;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Provides a Java representation of Erlang maps. Maps are created from one or
  * more arbitrary Erlang terms.
@@ -291,4 +294,51 @@ public class OtpErlangMap extends OtpErlangObject {
         newMap.values = values.clone();
         return newMap;
     }
+
+    @Override
+    public boolean matchTerm(final OtpErlangObject o, final OtpBindings bindings) {
+        if (!(o instanceof OtpErlangMap)) {
+            return false;
+        }
+        final OtpErlangMap t = (OtpErlangMap) o;
+        if (arity() > t.arity()) {
+            return false;
+        }
+        for (int i = 0; i < arity(); i++) {
+            final OtpErlangObject k = keys[i];
+            final OtpErlangObject v = values[i];
+
+            final OtpErlangObject tv = t.get(k);
+            if (tv == null) {
+                return false;
+            }
+            if (!v.matchTerm(tv, bindings)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public OtpErlangObject bind(final OtpBindings bindings)
+            throws OtpMatchException {
+        if (bindings == null) {
+            throw new OtpMatchException("null bindings");
+        }
+        final List<OtpErlangObject> o = new ArrayList<OtpErlangObject>();
+        for (final OtpErlangObject e : values) {
+            o.add(e.bind(bindings));
+        }
+        return new OtpErlangMap(keys, o.toArray(new OtpErlangObject[o.size()]));
+    }
+
+    @Override
+    public OtpErlangObject bindPartial(final OtpBindings bindings) {
+        final List<OtpErlangObject> o = new ArrayList<OtpErlangObject>();
+        for (final OtpErlangObject e : values) {
+            o.add(e.bindPartial(bindings));
+        }
+        return new OtpErlangMap(keys, o.toArray(new OtpErlangObject[o.size()]));
+    }
+
 }

@@ -27,6 +27,8 @@ import java.io.Serializable;
 public abstract class OtpErlangObject implements Serializable, Cloneable {
     protected int hashCodeValue = 0;
 
+    private static OtpParser parser = new OtpParser();
+
     // don't change this!
     static final long serialVersionUID = -8435938572339430044L;
 
@@ -199,4 +201,93 @@ public abstract class OtpErlangObject implements Serializable, Cloneable {
             return abc[2];
         }
     }
+
+    /**
+     * Convert this object to an unquoted string. Types with special handling
+     * are OEBinary (return string from the byte[] content) and OEList (if it
+     * can be converted to String).
+     *
+     * @return an unquoted string value for this object.
+     *
+     */
+    public String asString() {
+        return toString();
+    }
+
+    /**
+     * Matches this pattern against given term, binding variable values to the
+     * respective terms. Duplicated variables must bind to the same term.
+     *
+     * @param term
+     *            the object to match
+     * @param bindings
+     *            variable bindings or null.
+     * @return true if the match succeeded.
+     */
+    public boolean matchTerm(final OtpErlangObject term,
+            final OtpBindings bindings) {
+        return equals(term);
+    }
+
+    /**
+     * Matches this term against given pattern, binding variable values to the
+     * respective terms. Duplicated variables must bind to the same term.
+     *
+     * @param pattern
+     *            the pattern to match
+     * @param bindings
+     *            variable bindings or null.
+     * @return true if the match succeeded.
+     */
+    public boolean matchPattern(final OtpErlangObject pattern,
+            final OtpBindings bindings) {
+        return pattern.matchTerm(this, bindings);
+    }
+
+    /**
+     * Matches this pattern against given pattern, binding variable values to
+     * the respective terms. Duplicated variables must bind to the same term.
+     *
+     * @param pattern
+     *            the pattern to match, as a string
+     * @param bindings
+     *            variable bindings or null.
+     * @return true if the match succeeded.
+     */
+    public boolean matchPattern(final String pattern, final OtpBindings bindings) {
+        try {
+            return matchPattern(parser.parse(pattern), bindings);
+        } catch (final OtpParserException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Makes new Erlang term replacing variables with the respective values from
+     * bindings. All variables must
+     *
+     * @param bindings
+     *            variable bindings
+     * @return new term
+     * @throws OtpMatchException
+     *             if any variable didn't have a bound value
+     */
+    public OtpErlangObject bind(final OtpBindings bindings)
+            throws OtpMatchException {
+        return this;
+    }
+
+    /**
+     * Makes new Erlang term replacing variables with the respective values from
+     * bindings. The returned term may still be a pattern, if not all variables
+     * had bindings.
+     *
+     * @param bindings
+     *            variable bindings
+     * @return new term
+     */
+    public OtpErlangObject bindPartial(final OtpBindings bindings) {
+        return this;
+    }
+
 }

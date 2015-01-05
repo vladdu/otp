@@ -275,4 +275,9 @@ public class OtpErlangAtom extends OtpErlangObject {
         return new String(so);
     }
 
+    @Override
+    public String asString() {
+        return atom;
+    }
+
 }

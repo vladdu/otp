@@ -82,4 +82,9 @@ public class OtpErlangBinary extends OtpErlangBitstr {
         final OtpErlangBinary that = (OtpErlangBinary) super.clone();
         return that;
     }
+
+    @Override
+    public String asString() {
+        return new String(bin);
+    }
 }
