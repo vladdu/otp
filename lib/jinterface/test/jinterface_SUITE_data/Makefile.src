@@ -35,7 +35,7 @@ ERLC = erlc
 
 JINTERFACE_CLASSPATH = @jinterface_classpath@
 
-CLASSPATH = .@PS@$(JINTERFACE_CLASSPATH)@PS@
+CLASSPATH = .@PS@$(JINTERFACE_CLASSPATH)@PS@../junit-4.14.jar@PS@
 
 JAVA_FILES = \
 	Nodename.java \
@@ -48,7 +48,11 @@ JAVA_FILES = \
 	MboxLinkUnlink.java \
 	NodeStatusHandler.java \
 	Maps.java \
-	FunEquals.java
+	FunEquals.java \
+	BindTest.java \
+	OtpFormatTest.java \
+	PatternMatchTest.java \
+	TermParserTest.java
 
 CLASS_FILES = $(JAVA_FILES:.java=.class)
 
