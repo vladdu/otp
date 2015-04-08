@@ -286,6 +286,26 @@ comments() ->
          {white_space,{1,5},"\n "},
          {atom,{2,2},b}],
      {2,3}} = erl_scan:string("a %%\n b",{1,1},[return]),
+
+    {ok,[{atom,{1,1},a},{atom,{2,2},b}],{2,3}} =
+        erl_scan:string("a %%\r\n b",{1,1}),
+    {ok,[{atom,{1,1},a},{comment,{1,3},"%%"},{atom,{2,2},b}],{2,3}} =
+        erl_scan:string("a %%\r\n b",{1,1}, [return_comments]),
+    {ok,[{atom,{1,1},a},
+         {white_space,{1,2}," "},
+         {white_space,{1,5},"\r"},
+         {white_space,{1,6},"\n "},
+         {atom,{2,2},b}],
+     {2,3}} =
+        erl_scan:string("a %%\r\n b",{1,1},[return_white_spaces]),
+    {ok,[{atom,{1,1},a},
+         {white_space,{1,2}," "},
+         {comment,{1,3},"%%"},
+         {white_space,{1,5},"\r"},
+         {white_space,{1,6},"\n "},
+         {atom,{2,2},b}],
+     {2,3}} = erl_scan:string("a %%\r\n b",{1,1},[return]),
+
     ok.
 
 errors() ->
