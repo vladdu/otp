@@ -49,10 +49,13 @@
     construct <c><![CDATA[C]]></c> to its abstract format representation <c><![CDATA[R]]></c>, and write
     <c><![CDATA[R = Rep(C)]]></c>.
     </p>
-  <p>The word <c><![CDATA[LINE]]></c> below represents an integer, and denotes the
-    number of the line in the source file where the construction occurred.
+  <p>The word <c><![CDATA[LINE]]></c> below represents a position term as provided by
+    the lexical scanner (an integer or a list of attributes) and denotes the
+    location in the source file where the construction occurred. This is often the first token
+    in the construct, but is not necessarily it: for example, for operations it is the 
+    operator's token. 
     Several instances of <c><![CDATA[LINE]]></c> in the same construction may denote
-    different lines.</p>
+    different locations.</p>
   <p>Since operators are not terms in their own right, when operators are
     mentioned below, the representation of an operator should be taken to
     be the atom with a printname consisting of the same characters as the
