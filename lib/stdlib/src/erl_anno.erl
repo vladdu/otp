@@ -415,15 +415,7 @@ anno_info(Anno, Item, Default) ->
     end.
 
 anno_info(Anno, Item) ->
-    try lists:keyfind(Item, 1, Anno) of
-        {Item, Value} ->
-            Value;
-        false ->
-            undefined
-    catch
-        _:_ ->
-            erlang:error(badarg, [Anno])
-    end.
+	anno_info(Anno, Item, undefined).
 
 end_location("", Line, Column) ->
     {Line, Column};
