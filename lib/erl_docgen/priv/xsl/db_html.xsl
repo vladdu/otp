@@ -326,7 +326,7 @@
     <xsl:param name="global_types"/>
 
     <xsl:for-each select="$subtype">
-      <xsl:variable name="tname" select="typename"/>
+      <xsl:variable name="tname" select="typename[text() != '']"/>
       <div class="REFTYPES subtype">
 	<span class="bold_code subtype">
 	  <xsl:apply-templates select="string" mode="local_type">
@@ -1914,10 +1914,12 @@
     <xsl:param name="partnum"/>
 
     <h4 class="func"><xsl:apply-templates select="name"/>
+    </h4>
+    <div class="func">
        <xsl:apply-templates
            select="name[string-length(@arity) > 0 and position()=last()]"
            mode="types"/>
-    </h4>
+    </div>
 
     <xsl:apply-templates select="fsummary|type|desc">
       <xsl:with-param name="partnum" select="$partnum"/>
@@ -2147,7 +2149,7 @@
               </xsl:when>
               <xsl:otherwise>
                 <!-- "Filepart#" (there is no ':' in Filepart -->
-                <span class="bold_code"><a href="{$filepart}.html"><xsl:apply-templates/></a></span>
+                <span class="bold_code seealso"><a href="{$filepart}.html"><xsl:apply-templates/></a></span>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:otherwise>
