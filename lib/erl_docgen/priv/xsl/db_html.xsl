@@ -1806,7 +1806,7 @@
   <!-- Libsummary -->
   <xsl:template match="libsummary">
     <xsl:param name="partnum"/>
-    <h3c lass="libsummary">LIBRARY SUMMARY</h3>
+    <h3 class="libsummary">LIBRARY SUMMARY</h3>
     <div class="REFBODY libsummary">
       <xsl:apply-templates>
         <xsl:with-param name="partnum" select="$partnum"/>
