@@ -1877,7 +1877,7 @@
   <xsl:template match="appsummary">
     <xsl:param name="partnum"/>
     <h3>APPLICATION SUMMARY</h3>
-    <div class="REFBODY" class="appsummary">
+    <div class="REFBODY appsummary">
       <xsl:apply-templates>
         <xsl:with-param name="partnum" select="$partnum"/>
       </xsl:apply-templates>
